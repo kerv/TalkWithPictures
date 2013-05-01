@@ -1,0 +1,10 @@
+C:\Users\kmiller\Dropbox\Programming\Code\TalkWithPictures\TalkWithPictures\bin\TalkWithPictures.dll
+C:\Users\kmiller\Dropbox\Programming\Code\TalkWithPictures\TalkWithPictures\bin\TalkWithPictures.pdb
+C:\Users\kmiller\Dropbox\Programming\Code\TalkWithPictures\TalkWithPictures\obj\Debug\TalkWithPictures.csprojResolveAssemblyReference.cache
+C:\Users\kmiller\Dropbox\Programming\Code\TalkWithPictures\TalkWithPictures\obj\Debug\TalkWithPictures.dll
+C:\Users\kmiller\Dropbox\Programming\Code\TalkWithPictures\TalkWithPictures\obj\Debug\TalkWithPictures.pdb
+E:\Dropbox\Programming\Code\TalkWithPictures\TalkWithPictures\bin\TalkWithPictures.dll
+E:\Dropbox\Programming\Code\TalkWithPictures\TalkWithPictures\bin\TalkWithPictures.pdb
+E:\Dropbox\Programming\Code\TalkWithPictures\TalkWithPictures\obj\Debug\TalkWithPictures.csprojResolveAssemblyReference.cache
+E:\Dropbox\Programming\Code\TalkWithPictures\TalkWithPictures\obj\Debug\TalkWithPictures.dll
+E:\Dropbox\Programming\Code\TalkWithPictures\TalkWithPictures\obj\Debug\TalkWithPictures.pdb
