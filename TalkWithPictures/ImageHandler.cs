@@ -1,5 +1,4 @@
-﻿using Bing;
-using System;
+﻿using System;
 using System.Configuration;
 using System.Drawing;
 using System.Drawing.Drawing2D;
