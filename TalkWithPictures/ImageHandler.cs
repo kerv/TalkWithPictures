@@ -22,6 +22,7 @@ namespace TalkWithPictures
     {
         public bool IsReusable { get { return false; } }
         protected RequestContext RequestContext { get; set; }
+        BlobImageRepository m_blobStorage = new BlobImageRepository();
 
         public ImageHandler() : base() { }
 
@@ -40,16 +41,20 @@ namespace TalkWithPictures
             // Search for image
             var uriOfImage = GetFirstSearchURL(imageRequest);
             // Download image
-            Stream downloadedFile = DownloadRemoteImageFile(uriOfImage);
-            // Store image in cloud blob
+            MemoryStream downloadedFile = DownloadRemoteImageFile(uriOfImage);
+            
             // Serve up image from cloud blob, masked as original image
             ReturnDownloadedImage(downloadedFile, 400, 400, context, imageRequest);
+
+            // Store image in cloud blob
+            downloadedFile.Seek(0, SeekOrigin.Begin);
+            var imageLocation = m_blobStorage.Save("image/" + imageRequest.Extension, downloadedFile).AbsoluteUri;
 
             // TEST CODE TO SEE IF IMAGE RETURN IS WORKING
             //ReturnTestImage(context);
         }
 
-        private void ReturnDownloadedImage(Stream downloadedFile, int width, int height, HttpContext context, ImageRequest request)
+        private void ReturnDownloadedImage(Stream downloadedFile, int width, int height, HttpContext context, ImageRequest request)        
         {
             using (var image = Image.FromStream(downloadedFile))
             using (var bmp = new Bitmap(width, height))
@@ -134,7 +139,7 @@ namespace TalkWithPictures
 
         }
 
-        private Stream DownloadRemoteImageFile(string uri)
+        private MemoryStream DownloadRemoteImageFile(string uri)
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uri);
             HttpWebResponse response;
@@ -159,7 +164,13 @@ namespace TalkWithPictures
             {
 
                 // if the remote file was found, download it
-                return response.GetResponseStream();
+                // returning as memory stream so we have something to work with
+                // TODO: there must be a better way to do this
+                var stream = response.GetResponseStream();
+                var memoryStream = new MemoryStream();
+                stream.CopyTo(memoryStream);
+                memoryStream.Position = 0;
+                return memoryStream;
             }
             else
                 return null;

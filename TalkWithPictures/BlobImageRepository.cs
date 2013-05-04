@@ -10,7 +10,7 @@ namespace TalkWithPictures
 {
     public class BlobImageRepository : IImageRepository
     {
-        public Uri Save(string contentType, System.IO.Stream inputStream, string blobContainer = "searchImages")
+        public Uri Save(string contentType, System.IO.Stream inputStream, string blobContainer = "searchimages")
         {
             var container = GetContainer(blobContainer);
             var blockBlob = container.GetBlockBlobReference(Guid.NewGuid().ToString());
