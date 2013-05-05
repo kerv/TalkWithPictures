@@ -36,31 +36,40 @@ namespace TalkWithPictures
             // Parse out image name and other details
             ImageRequest imageRequest = GetImageRequest(context);
 
-            // Check if image is already in cloud blob
+            // Check if image is already in cloud blob by checking DB
+            // TODO:
 
-            // Search for image
+            // If it's not in the blob, search for image
             var uriOfImage = GetFirstSearchURL(imageRequest);
-            // Download image
+            // Download image from search results
             MemoryStream downloadedFile = DownloadRemoteImageFile(uriOfImage);
             
             // Serve up image from cloud blob, masked as original image
-            ReturnDownloadedImage(downloadedFile, 400, 400, context, imageRequest);
+            ReturnDownloadedImage(downloadedFile, context, imageRequest);
 
             // Store image in cloud blob
-            downloadedFile.Seek(0, SeekOrigin.Begin);
-            var imageLocation = m_blobStorage.Save("image/" + imageRequest.Extension, downloadedFile).AbsoluteUri;
+            StoreImageInBlob(imageRequest, downloadedFile);
+            // Store record in DB with link back to blob for future searches
+            // TODO:
 
             // TEST CODE TO SEE IF IMAGE RETURN IS WORKING
             //ReturnTestImage(context);
         }
 
-        private void ReturnDownloadedImage(Stream downloadedFile, int width, int height, HttpContext context, ImageRequest request)        
+        private void StoreImageInBlob(ImageRequest imageRequest, MemoryStream downloadedFile)
+        {
+            downloadedFile.Seek(0, SeekOrigin.Begin);
+            var imageLocation = m_blobStorage.Save("image/" + imageRequest.Extension, downloadedFile).AbsoluteUri;
+        }
+
+        private void ReturnDownloadedImage(Stream downloadedFile, HttpContext context, ImageRequest request)        
         {
             using (var image = Image.FromStream(downloadedFile))
-            using (var bmp = new Bitmap(width, height))
+            using (var bmp = new Bitmap(image.Width, image.Height))
             using (var gr = Graphics.FromImage(bmp))
             {
-                gr.DrawImage(image, new Rectangle(0, 0, width, height));
+
+                gr.DrawImage(image, new Rectangle(0, 0, image.Width, image.Height));
                 context.Response.ContentType = "image/png";
                 bmp.Save(context.Response.OutputStream, ImageFormat.Png);
             }
@@ -149,14 +158,12 @@ namespace TalkWithPictures
             }
             catch (Exception)
             {
+                // Something bad happened so just die.
+                // TODO: This could log somewhere.
                 return null;
             }
 
-            // Check that the remote file was found. The ContentType
-            // check is performed since a request for a non-existent
-            // image file might be redirected to a 404-page, which would
-            // yield the StatusCode "OK", even though the image was not
-            // found.
+            // Check that the remote file was found and that it is an image
             if ((response.StatusCode == HttpStatusCode.OK ||
                 response.StatusCode == HttpStatusCode.Moved ||
                 response.StatusCode == HttpStatusCode.Redirect) &&
