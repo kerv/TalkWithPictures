@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
+using TalkWithPictures.Model;
 
 namespace TalkWithPictures
 {
@@ -37,29 +38,68 @@ namespace TalkWithPictures
             ImageRequest imageRequest = GetImageRequest(context);
 
             // Check if image is already in cloud blob by checking DB
-            // TODO:
+            string uriOfImageInBlob = CheckIfInBlob(imageRequest);
 
             // If it's not in the blob, search for image
-            var uriOfImage = GetFirstSearchURL(imageRequest);
+            string uriOfImage = null;
+            if (string.IsNullOrEmpty(uriOfImageInBlob))
+                uriOfImage = GetSearchURL(imageRequest);
+            else
+                uriOfImage = uriOfImageInBlob;
+
             // Download image from search results
             MemoryStream downloadedFile = DownloadRemoteImageFile(uriOfImage);
             
             // Serve up image from cloud blob, masked as original image
             ReturnDownloadedImage(downloadedFile, context, imageRequest);
 
-            // Store image in cloud blob
-            StoreImageInBlob(imageRequest, downloadedFile);
-            // Store record in DB with link back to blob for future searches
-            // TODO:
-
+            // if we haven't found it in a blob then store it now
+            if (string.IsNullOrEmpty(uriOfImageInBlob))
+            {
+                // Store image in cloud blob
+                string newBlobUri = StoreImageInBlob(imageRequest, downloadedFile);
+                // Store record in DB with link back to blob for future searches
+                StoreBlobInfoInDB(imageRequest, newBlobUri);
+            }
             // TEST CODE TO SEE IF IMAGE RETURN IS WORKING
             //ReturnTestImage(context);
         }
 
-        private void StoreImageInBlob(ImageRequest imageRequest, MemoryStream downloadedFile)
+        private void StoreBlobInfoInDB(ImageRequest imageRequest, string newBlobUri)
+        {
+            using (var db = new PictureContext())
+            {
+                db.Pictures.Add(new ImageStore { 
+                    BlobURL = newBlobUri, 
+                    Extension = imageRequest.Extension, 
+                    SearchTermString = imageRequest.GetSearchTermsDisplay,
+                    Index = imageRequest.Index
+                });
+                db.SaveChanges();
+            }
+        }
+
+        private string CheckIfInBlob(ImageRequest imageRequest)
+        {
+            using (var db = new PictureContext())
+            {
+                ImageStore image = db.Pictures.Where(i =>
+                    i.Extension == imageRequest.Extension
+                    && i.SearchTermString == imageRequest.GetSearchTermsDisplay
+                    && i.Index == imageRequest.Index
+                    ).FirstOrDefault();
+
+                if (image != null)
+                    return image.BlobURL;
+            }
+
+            return null;
+        }
+
+        private string StoreImageInBlob(ImageRequest imageRequest, MemoryStream downloadedFile)
         {
             downloadedFile.Seek(0, SeekOrigin.Begin);
-            var imageLocation = m_blobStorage.Save("image/" + imageRequest.Extension, downloadedFile).AbsoluteUri;
+            return m_blobStorage.Save("image/" + imageRequest.Extension, downloadedFile).AbsoluteUri;
         }
 
         private void ReturnDownloadedImage(Stream downloadedFile, HttpContext context, ImageRequest request)        
@@ -107,20 +147,29 @@ namespace TalkWithPictures
         /// <returns></returns>image
         private ImageRequest GetImageRequest(HttpContext context)
         {
-            var fileNameWithoutAppPath = context.Request.CurrentExecutionFilePath.TrimStart(context.Request.ApplicationPath);
+            var appPath = context.Request.ApplicationPath;
+            if (appPath.Length > 1)
+                appPath += "/";
+
+            var fileNameWithoutAppPath = context.Request.CurrentExecutionFilePath.TrimStart(appPath);
             var fileNameWithoutExtension = fileNameWithoutAppPath.TrimEnd(context.Request.CurrentExecutionFilePathExtension);
             var searchQueries = fileNameWithoutExtension.Split('_'); // <-- HAHA a '_' face! *cute*
+
+            int index = 0;
+            if (context.Request.QueryString.AllKeys.Count() > 0)
+                int.TryParse(context.Request.QueryString[null], out index);             
 
             ImageRequest image = new ImageRequest()
                 {
                     Extension = context.Request.CurrentExecutionFilePathExtension.TrimStart('.'), // remove leading period
-                    SearchTerms = searchQueries
+                    SearchTerms = searchQueries,
+                    Index = index
                 };
 
             return image;
         }
 
-        public string GetFirstSearchURL(ImageRequest request)
+        public string GetSearchURL(ImageRequest request)
         {
             var searchTerm = string.Join(" ", request.SearchTerms);
 
@@ -144,7 +193,7 @@ namespace TalkWithPictures
 
             var images = bingRequest.Parse(content);
             
-            return images.First().Url;
+            return images.ElementAt(request.Index).Url;
 
         }
 

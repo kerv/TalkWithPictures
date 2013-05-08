@@ -9,7 +9,7 @@
 <body>
     <form id="form1" runat="server">
     <div>
-        <a href="/dog.png">A dog</a>
+        <a href="dog.png">A dog</a>
     </div>
     </form>
 </body>
