@@ -153,6 +153,8 @@ namespace TalkWithPictures
 
             var fileNameWithoutAppPath = context.Request.CurrentExecutionFilePath.TrimStart(appPath);
             var fileNameWithoutExtension = fileNameWithoutAppPath.TrimEnd(context.Request.CurrentExecutionFilePathExtension);
+            fileNameWithoutExtension = fileNameWithoutExtension.Replace("/", "_"); // if someone types a / replace it with a _
+            fileNameWithoutExtension = fileNameWithoutExtension.Replace("\\", "_"); // if someone types a \ replace it with a _
             var searchQueries = fileNameWithoutExtension.Split('_'); // <-- HAHA a '_' face! *cute*
 
             int index = 0;
@@ -191,9 +193,22 @@ namespace TalkWithPictures
                 content = reader.ReadToEnd();
             }
 
-            var images = bingRequest.Parse(content);
-            
-            return images.ElementAt(request.Index).Url;
+            string uriOfImage = null;
+
+            try
+            {
+                var images = bingRequest.Parse(content);
+
+                if (images.Count() > 0)
+                    uriOfImage = images.ElementAt(request.Index).Url;
+            }
+            catch (IndexOutOfRangeException)
+            {
+                // No results were found so return a 404
+                uriOfImage = new Uri(HttpContext.Current.Request.Url, "404.jpeg").AbsoluteUri;
+            }
+
+            return uriOfImage;
 
         }
 

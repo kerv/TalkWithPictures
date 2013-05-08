@@ -90,6 +90,7 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="404.jpeg" />
     <Content Include="Default.aspx" />
     <Content Include="lib\Microsoft.WindowsAzure.Configuration.dll" />
     <Content Include="lib\Microsoft.WindowsAzure.Storage.dll" />
