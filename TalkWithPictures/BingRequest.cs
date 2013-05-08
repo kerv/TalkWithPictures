@@ -30,7 +30,7 @@ namespace TalkWithPictures
         {
             get
             {
-                return string.Format("https://api.datamarket.azure.com/Bing/Search/v1/Composite?Sources=%27image%27&Query=%27{0}%27&Adult=%27Strict%27&$top={1}&$skip={2}&$format=JSON", SearchTerm, Count, Offset);
+                return string.Format("https://api.datamarket.azure.com/Bing/Search/v1/Composite?Sources=%27image%27&Query=%27{0}%27&Adult=%27Strict%27&ImageFilters=%27Size%3ASmall%2BAspect%3ASquare%27&$top={1}&$skip={2}&$format=JSON", SearchTerm, Count, Offset);
             }
         }
 
