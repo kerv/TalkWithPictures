@@ -13,7 +13,7 @@
 
       <hr>
 
-      <div class="row-fluid marketing">        
+      <div class="row-fluid marketing">    
         <div class="span6">
           <h4>A Dinosaur</h4>
           <p>Construct a URL with any keyword you would like to find.</p>

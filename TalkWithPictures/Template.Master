@@ -78,7 +78,7 @@
                 </asp:ContentPlaceHolder>
 
             </ul>
-            <h3 class="muted">Return An Image</h3>
+            <h3 class="muted"><a href="/">Return An Image</a></h3>
         </div>
 
         <hr>
@@ -89,7 +89,7 @@
         <hr>
 
         <div class="footer">
-            <p>&copy; Kevin Miller 2013 - MIT License</p>
+            <p>&copy;2013 Kevin Miller  - MIT License</p>
         </div>
 
     </div>
