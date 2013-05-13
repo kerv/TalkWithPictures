@@ -11,7 +11,7 @@ namespace TalkWithPictures
 {
 
 
-    public partial class Default
+    public partial class About
     {
     }
 }
