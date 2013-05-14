@@ -47,11 +47,23 @@ namespace TalkWithPictures
             else
                 uriOfImage = uriOfImageInBlob;
 
-            // Download image from search results
-            MemoryStream downloadedFile = DownloadRemoteImageFile(uriOfImage);
-            
-            // Serve up image from cloud blob, masked as original image
-            ReturnDownloadedImage(downloadedFile, context, imageRequest);
+            MemoryStream downloadedFile = null;
+            try
+            {
+                // Download image from search results
+                downloadedFile = DownloadRemoteImageFile(uriOfImage);
+
+                // Serve up image from cloud blob, masked as original image
+                ReturnDownloadedImage(downloadedFile, context, imageRequest);
+            }
+            catch (ArgumentException ex)
+            {
+                // error downloading file from the interwebs, so just return the 404 image.
+                downloadedFile = DownloadRemoteImageFile(new Uri(HttpContext.Current.Request.Url, "404.jpeg").AbsoluteUri);
+                ReturnDownloadedImage(downloadedFile, context, imageRequest);
+                return;
+            }
+
 
             // if we haven't found it in a blob then store it now
             if (string.IsNullOrEmpty(uriOfImageInBlob))
@@ -69,9 +81,10 @@ namespace TalkWithPictures
         {
             using (var db = new PictureContext())
             {
-                db.Pictures.Add(new ImageStore { 
-                    BlobURL = newBlobUri, 
-                    Extension = imageRequest.Extension, 
+                db.Pictures.Add(new ImageStore
+                {
+                    BlobURL = newBlobUri,
+                    Extension = imageRequest.Extension,
                     SearchTermString = imageRequest.GetSearchTermsDisplay,
                     Index = imageRequest.Index
                 });
@@ -102,7 +115,7 @@ namespace TalkWithPictures
             return m_blobStorage.Save("image/" + imageRequest.Extension, downloadedFile).AbsoluteUri;
         }
 
-        private void ReturnDownloadedImage(Stream downloadedFile, HttpContext context, ImageRequest request)        
+        private void ReturnDownloadedImage(Stream downloadedFile, HttpContext context, ImageRequest request)
         {
             using (var image = Image.FromStream(downloadedFile))
             using (var bmp = new Bitmap(image.Width, image.Height))
@@ -159,7 +172,7 @@ namespace TalkWithPictures
 
             int index = 0;
             if (context.Request.QueryString.AllKeys.Count() > 0)
-                int.TryParse(context.Request.QueryString[null], out index);             
+                int.TryParse(context.Request.QueryString[null], out index);
 
             ImageRequest image = new ImageRequest()
                 {
