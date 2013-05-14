@@ -3,7 +3,6 @@
 <asp:Content ID="Content1" ContentPlaceHolderID="CPH1" runat="server">
     <li class="active"><a href="default.aspx">Home</a></li>
     <li><a href="about.aspx">About</a></li>
-    <li><a href="#">Contact</a></li>
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="CPH2" runat="server">
 
