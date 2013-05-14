@@ -165,7 +165,7 @@ namespace TalkWithPictures
                 {
                     Extension = context.Request.CurrentExecutionFilePathExtension.TrimStart('.'), // remove leading period
                     SearchTerms = searchQueries,
-                    Index = index
+                    Index = index % 50, // if it's larger than 49, then just take the remainder
                 };
 
             return image;
