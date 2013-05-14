@@ -14,8 +14,8 @@
 
       <hr>
 
-    <h4>What is it?</h4>
-    <p>This project was just a simple project allowing me to understand what Windows Azure can do. If you haven't checked it out, please <a href="http://www.windowsazure.com/en-us/pricing/free-trial/" target="_blank">sign up</a> for a free 90d account!</p>
+    <h4>Why did I make this?</h4>
+    <p>After seeing a few other sites that did something very similar, I figured I could adapt this in a way that I could use learn to understand what Windows Azure (<em>Microsoft's Cloud Platform</em>) can do. If you haven't checked it out, please <a href="http://www.windowsazure.com/en-us/pricing/free-trial/" target="_blank">sign up</a> for a free 90d account!</p>
 
     <h4>How did I make it?</h4>
     <p>The site uses ASP.NET and the <a href="https://datamarket.azure.com/dataset/5ba839f1-12ce-4cce-bf57-a49d98d29a44" target="_blank">Bing Search API</a> to find images initially. Once found, it caches each image in Azure blob storage for faster secondary retrival.</p>
