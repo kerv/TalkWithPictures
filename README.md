@@ -1,6 +1,8 @@
 TalkWithPictures
 ================
 
+Check out a working version @ http://rtn.pw/
+
 This project uses:
 * Bing Image Search API
 * Windows Azure Blob Storage
